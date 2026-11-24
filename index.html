@@ -1,0 +1,252 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>커버 뚝딱 - 쇼츠·릴스·인스타 커버 무료로 만들기</title>
+<meta name="description" content="유튜브 쇼츠, 인스타 릴스, 인스타툰, 유튜브 썸네일 커버를 10초 만에 만드는 무료 도구. 가입 없음, 워터마크 없음, 사진은 내 기기 밖으로 나가지 않습니다.">
+<meta property="og:title" content="커버 뚝딱 - 쇼츠·릴스 커버 무료로 만들기">
+<meta property="og:description" content="가입 없이, 워터마크 없이 10초 만에 커버 만들기">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Do+Hyeon&family=Noto+Sans+KR:wght@900&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#111316;color:#eceef1;font-family:"Noto Sans KR",system-ui,"Malgun Gothic",sans-serif;font-weight:400}
+header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 20px;border-bottom:1px solid #24282e}
+h1{font-size:20px;margin:0;font-weight:900}
+h1 small{font-weight:400;font-size:13px;color:#9aa2ad;margin-left:8px}
+main{display:grid;grid-template-columns:minmax(0,1fr) 380px;gap:24px;max-width:1080px;margin:0 auto;padding:20px}
+.stage{display:flex;justify-content:center;align-items:flex-start}
+canvas{max-width:100%;max-height:78vh;border-radius:10px;box-shadow:0 8px 30px rgba(0,0,0,.5);background:#222}
+.panel{display:flex;flex-direction:column;gap:16px}
+label.t{display:block;font-size:13px;color:#9aa2ad;margin-bottom:6px}
+.row{display:flex;flex-wrap:wrap;gap:8px}
+.chip{border:1px solid #333941;background:#1a1d22;color:#eceef1;border-radius:8px;padding:8px 12px;font:inherit;font-size:14px;cursor:pointer}
+.chip.on{border-color:#ffd43b;color:#ffd43b}
+.sw{width:38px;height:38px;border-radius:8px;border:2px solid transparent;cursor:pointer;padding:0}
+.sw.on{border-color:#fff}
+textarea,input[type=text]{width:100%;background:#1a1d22;border:1px solid #333941;border-radius:8px;color:#eceef1;font:inherit;font-size:16px;padding:10px}
+textarea{resize:vertical;min-height:72px}
+input[type=range]{width:100%;accent-color:#ffd43b}
+.go{background:#ffd43b;color:#111;border:0;border-radius:10px;padding:15px;font:inherit;font-size:17px;font-weight:900;cursor:pointer}
+.tip{background:#1a1d22;border:1px solid #ffd43b;color:#ffd43b;border-radius:8px;padding:8px 12px;font-size:14px;text-decoration:none;white-space:nowrap}
+.thanks{display:none;background:#1a1d22;border:1px solid #333941;border-radius:10px;padding:12px;font-size:14px;line-height:1.5}
+.thanks a{color:#ffd43b}
+#ad:empty,.tip[hidden]{display:none}
+#ad{max-width:1080px;margin:0 auto;padding:0 20px}
+article{max-width:1080px;margin:10px auto 40px;padding:0 20px;color:#9aa2ad;font-size:14px;line-height:1.7}
+article h2{color:#eceef1;font-size:16px;margin:22px 0 6px}
+@media(max-width:820px){main{grid-template-columns:1fr;padding:14px}canvas{max-height:52vh}h1 small{display:none}}
+</style>
+</head>
+<body>
+<header>
+  <h1>커버 뚝딱<small>쇼츠·릴스·인스타 커버 10초 완성</small></h1>
+  <a class="tip" id="tipTop" target="_blank" rel="noopener" hidden></a>
+</header>
+
+<main>
+  <div class="stage"><canvas id="cv" aria-label="커버 미리보기"></canvas></div>
+
+  <div class="panel">
+    <div>
+      <label class="t">크기</label>
+      <div class="row" id="sizes">
+        <button class="chip" data-v="1080x1920">쇼츠·릴스</button>
+        <button class="chip" data-v="1080x1350">인스타 세로</button>
+        <button class="chip" data-v="1080x1080">정사각</button>
+        <button class="chip" data-v="1280x720">유튜브</button>
+      </div>
+    </div>
+
+    <div>
+      <label class="t">배경</label>
+      <div class="row" id="bgs"></div>
+      <div class="row" style="margin-top:8px">
+        <button class="chip" id="pick">내 사진 넣기</button>
+        <input type="file" id="file" accept="image/*" hidden>
+      </div>
+    </div>
+
+    <div>
+      <label class="t" for="title">큰 글자</label>
+      <textarea id="title"></textarea>
+    </div>
+
+    <div>
+      <label class="t" for="sub">작은 글자 (비워도 됨)</label>
+      <input type="text" id="sub">
+    </div>
+
+    <div>
+      <label class="t">글씨체</label>
+      <div class="row" id="fonts">
+        <button class="chip" data-v="Black Han Sans" style="font-family:'Black Han Sans'">굵게</button>
+        <button class="chip" data-v="Do Hyeon" style="font-family:'Do Hyeon'">또박또박</button>
+        <button class="chip" data-v="Noto Sans KR" style="font-weight:900">깔끔</button>
+      </div>
+    </div>
+
+    <div>
+      <label class="t">글자색</label>
+      <div class="row" id="colors"></div>
+    </div>
+
+    <div>
+      <label class="t">글자 위치</label>
+      <div class="row" id="poses">
+        <button class="chip" data-v="top">위</button>
+        <button class="chip" data-v="mid">가운데</button>
+        <button class="chip" data-v="bot">아래</button>
+      </div>
+    </div>
+
+    <div>
+      <label class="t" for="scale">글자 크기</label>
+      <input type="range" id="scale" min="50" max="160" value="100">
+    </div>
+
+    <div>
+      <label class="t" for="dim">배경 어둡게</label>
+      <input type="range" id="dim" min="0" max="80" value="30">
+    </div>
+
+    <button class="go" id="save">이미지로 저장</button>
+    <div class="thanks" id="thanks">저장했어요. 도움이 됐다면 <a id="tipBottom" target="_blank" rel="noopener"></a> 🙏</div>
+  </div>
+</main>
+
+<div id="ad"></div>
+
+<article>
+  <h2>커버 뚝딱은 뭔가요?</h2>
+  유튜브 쇼츠, 인스타그램 릴스, 인스타툰 첫 장, 유튜브 썸네일에 쓸 커버 이미지를 바로 만드는 무료 도구입니다. 가입도 없고 워터마크도 없습니다.
+  <h2>내 사진은 어디로 가나요?</h2>
+  어디로도 안 갑니다. 사진은 이 화면 안에서만 쓰이고 서버로 보내지 않습니다.
+  <h2>크기는 어떻게 고르나요?</h2>
+  쇼츠·릴스는 1080×1920, 인스타 세로 글은 1080×1350, 정사각은 1080×1080, 유튜브 썸네일은 1280×720입니다. 위 단추만 누르면 맞춰집니다.
+</article>
+
+<script src="config.js"></script>
+<script>
+const GRADS=[['#ff5f6d','#ffc371'],['#2193b0','#6dd5ed'],['#8e2de2','#4a00e0'],['#11998e','#38ef7d'],['#232526','#414345'],['#f953c6','#b91d73']];
+const COLORS=['#ffffff','#ffd43b','#63e6be','#ff8787','#111111'];
+const S={size:'1080x1920',bg:0,img:null,dim:30,title:'이거 모르면\n진짜 손해',sub:'끝까지 보세요',font:'Black Han Sans',color:'#ffffff',pos:'mid',scale:100};
+const $=id=>document.getElementById(id), cv=$('cv'), ctx=cv.getContext('2d');
+
+function wrap(text,maxW){
+  const out=[];
+  for(const raw of text.split('\n')){
+    let line='';
+    for(const word of raw.split(' ')){
+      const t=line?line+' '+word:word;
+      if(ctx.measureText(t).width<=maxW){line=t;continue}
+      if(line){out.push(line);line=''}
+      let w=word;
+      while(w.length>1&&ctx.measureText(w).width>maxW){
+        let i=w.length-1;
+        while(i>1&&ctx.measureText(w.slice(0,i)).width>maxW)i--;
+        out.push(w.slice(0,i));w=w.slice(i);
+      }
+      line=w;
+    }
+    out.push(line);
+  }
+  return out;
+}
+
+function draw(){
+  const [W,H]=S.size.split('x').map(Number);
+  cv.width=W;cv.height=H;
+  if(S.img){
+    const r=Math.max(W/S.img.width,H/S.img.height),w=S.img.width*r,h=S.img.height*r;
+    ctx.drawImage(S.img,(W-w)/2,(H-h)/2,w,h);
+  }else{
+    const g=ctx.createLinearGradient(0,0,W,H);
+    g.addColorStop(0,GRADS[S.bg][0]);g.addColorStop(1,GRADS[S.bg][1]);
+    ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
+  }
+  ctx.fillStyle='rgba(0,0,0,'+S.dim/100+')';ctx.fillRect(0,0,W,H);
+
+  const base=Math.min(W,H*0.75), pad=W*0.07, maxW=W-pad*2;
+  const tS=base*0.15*S.scale/100, sS=tS*0.42, tLH=tS*1.2, gap=tS*0.35, boxH=sS*1.8;
+  const fam='"'+S.font+'","Malgun Gothic",sans-serif';
+  ctx.textAlign='center';ctx.textBaseline='middle';ctx.lineJoin='round';
+
+  ctx.font='900 '+tS+'px '+fam;
+  const lines=S.title.trim()?wrap(S.title.trim(),maxW):[];
+  const sub=S.sub.trim();
+  const total=lines.length*tLH+(sub?(lines.length?gap:0)+boxH:0);
+  let y=S.pos==='top'?H*0.1:S.pos==='bot'?H*0.9-total:(H-total)/2;
+
+  const dark=S.color==='#111111';
+  for(const l of lines){
+    ctx.lineWidth=tS*0.16;ctx.strokeStyle=dark?'#ffffff':'#000000';
+    ctx.strokeText(l,W/2,y+tLH/2);
+    ctx.fillStyle=S.color;ctx.fillText(l,W/2,y+tLH/2);
+    y+=tLH;
+  }
+  if(sub){
+    if(lines.length)y+=gap;
+    ctx.font='900 '+sS+'px '+fam;
+    let s=sub;
+    while(s.length>1&&ctx.measureText(s).width>maxW-sS*1.6)s=s.slice(0,-1);
+    const bw=ctx.measureText(s).width+sS*1.6, x=(W-bw)/2, r=boxH*0.28;
+    ctx.fillStyle=dark||S.color==='#ffffff'?'#ffd43b':S.color;
+    ctx.beginPath();ctx.roundRect(x,y,bw,boxH,r);ctx.fill();
+    ctx.fillStyle='#111111';ctx.fillText(s,W/2,y+boxH/2+sS*0.04);
+  }
+}
+
+function group(id,key,cast){
+  const box=$(id);
+  const sync=()=>[...box.children].forEach(b=>b.classList.toggle('on',String(S[key])===b.dataset.v&&!(key==='bg'&&S.img)));
+  box.addEventListener('click',e=>{
+    const b=e.target.closest('[data-v]');if(!b)return;
+    S[key]=cast?cast(b.dataset.v):b.dataset.v;
+    if(key==='bg')S.img=null;
+    sync();draw();
+  });
+  sync();return sync;
+}
+
+GRADS.forEach((g,i)=>$('bgs').insertAdjacentHTML('beforeend','<button class="sw" data-v="'+i+'" aria-label="배경 '+(i+1)+'" style="background:linear-gradient(135deg,'+g[0]+','+g[1]+')"></button>'));
+COLORS.forEach(c=>$('colors').insertAdjacentHTML('beforeend','<button class="sw" data-v="'+c+'" aria-label="글자색" style="background:'+c+';outline:1px solid #333941"></button>'));
+group('sizes','size');group('fonts','font');group('colors','color');group('poses','pos');
+const syncBg=group('bgs','bg',Number);
+
+$('title').value=S.title;$('sub').value=S.sub;
+$('title').oninput=e=>{S.title=e.target.value;draw()};
+$('sub').oninput=e=>{S.sub=e.target.value;draw()};
+$('scale').oninput=e=>{S.scale=+e.target.value;draw()};
+$('dim').oninput=e=>{S.dim=+e.target.value;draw()};
+$('pick').onclick=()=>$('file').click();
+$('file').onchange=e=>{
+  const f=e.target.files[0];if(!f)return;
+  const im=new Image();
+  im.onload=()=>{S.img=im;syncBg();draw()};
+  im.src=URL.createObjectURL(f);
+};
+$('save').onclick=()=>cv.toBlob(b=>{
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(b);a.download='cover-'+S.size+'.png';a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href),2000);
+  if(CFG.tipUrl)$('thanks').style.display='block';
+},'image/png');
+
+const CFG=window.CFG||{};
+if(CFG.tipUrl){
+  for(const id of ['tipTop','tipBottom']){$(id).href=CFG.tipUrl;$(id).textContent=(id==='tipTop'?'☕ ':'')+(CFG.tipLabel||'후원하기')}
+  $('tipTop').hidden=false;
+}
+if(CFG.adHtml)$('ad').innerHTML=CFG.adHtml;
+
+draw();
+if(document.fonts){
+  Promise.all(['Black Han Sans','Do Hyeon','Noto Sans KR'].map(f=>document.fonts.load('900 40px "'+f+'"','가'))).then(draw,draw);
+  document.fonts.ready.then(draw);
+}
+</script>
+</body>
+</html>
